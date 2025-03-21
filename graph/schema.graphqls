@@ -1,0 +1,71 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+directive @auth on OBJECT | FIELD_DEFINITION
+
+type User {
+  id: ID!
+  name: String!
+  email: String!
+}
+
+type Query {
+  me: User! @auth
+  users: [User!]! @auth
+  user(id: ID!): User @auth
+  products: [Product!]! @auth
+  product(id: ID!): Product @auth
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type Product {
+  id: ID!
+  name: String!
+  price: Float!
+  stock: Int!
+  createdAt: String!
+  updatedAt: String!
+}
+
+input CreateUserInput {
+  name: String!
+  email: String!
+  password: String!
+}
+
+input UpdateUserInput {
+  name: String
+  email: String
+}
+
+input CreateProductInput {
+  name: String!
+  price: Float!
+  stock: Int!
+}
+
+input UpdateProductInput {
+  name: String
+  price: Float
+  stock: Int
+}
+
+type AuthResponse {
+  user: User!
+  accessToken: String!
+}
+
+type Mutation {
+  login(input: LoginInput!): AuthResponse!
+  createUser(input: CreateUserInput!): User! @auth
+  updateUser(id: ID!, input: UpdateUserInput!): User! @auth
+  deleteUser(id: ID!): Boolean! @auth
+  createProduct(input: CreateProductInput!): Product! @auth
+  updateProduct(id: ID!, input: UpdateProductInput!): Product! @auth
+  deleteProduct(id: ID!): Boolean! @auth
+}
