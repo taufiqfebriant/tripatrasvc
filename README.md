@@ -11,6 +11,11 @@ Mohon maaf, karena keterbatasan waktu, autentikasi saat ini hanya mencakup fitur
 - **JWT**: JSON Web Tokens for authentication.
 - **Docker**: For containerization and easy setup.
 
+## Prerequisites
+
+- Docker
+- Docker Compose
+
 ## Setup and Run
 
 1. Clone the repository
