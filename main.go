@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -13,6 +14,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/taufiqfebriant/tripatrasvc/db"
 	"github.com/taufiqfebriant/tripatrasvc/graph"
 	"github.com/taufiqfebriant/tripatrasvc/utils"
@@ -45,7 +47,6 @@ func graphqlHandler() echo.HandlerFunc {
 		})
 
 		if err != nil {
-			fmt.Println("err", err)
 			return nil, fmt.Errorf("access denied: invalid token")
 		}
 
@@ -67,7 +68,10 @@ func graphqlHandler() echo.HandlerFunc {
 
 	h.SetQueryCache(lru.New[*ast.QueryDocument](1000))
 
-	h.Use(extension.Introspection{})
+	if os.Getenv("APP_ENV") == "development" {
+		h.Use(extension.Introspection{})
+	}
+
 	h.Use(extension.AutomaticPersistedQuery{
 		Cache: lru.New[string](100),
 	})
@@ -92,10 +96,17 @@ func playgroundHandler() echo.HandlerFunc {
 }
 
 func main() {
+	e := echo.New()
+
 	db.Connect()
 	defer db.Disconnect()
 
-	e := echo.New()
+	allowedOrigins := strings.Split(os.Getenv("CLIENT_ORIGINS"), ",")
+
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins:     allowedOrigins,
+		AllowCredentials: true,
+	}))
 
 	e.POST("/graphql", graphqlHandler())
 	e.GET("/", playgroundHandler())

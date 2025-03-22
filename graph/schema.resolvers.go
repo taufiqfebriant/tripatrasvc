@@ -84,6 +84,14 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input mode
 	if input.Email != nil {
 		update["email"] = *input.Email
 	}
+	if input.Password != nil {
+		// Hash the new password
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(*input.Password), bcrypt.DefaultCost)
+		if err != nil {
+			return nil, fmt.Errorf("error hashing password: %v", err)
+		}
+		update["password"] = string(hashedPassword)
+	}
 
 	var user model.User
 	err := r.userCollection.FindOneAndUpdate(

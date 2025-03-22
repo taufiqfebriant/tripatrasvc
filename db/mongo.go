@@ -18,6 +18,7 @@ var DB *mongo.Database
 func Connect() {
 	// Get MongoDB URI from environment variable
 	mongoURI := os.Getenv("MONGODB_URI")
+	fmt.Println("mongoURI", mongoURI)
 	if mongoURI == "" {
 		log.Fatal("MONGODB_URI environment variable is not set")
 	}
